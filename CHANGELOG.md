@@ -2,6 +2,24 @@ The changelog becomes progressively more comprehensive as I became progressively
 
 The links to individual versions below are to copies of the script with the update URL removed. If you want automatic updates, install the script from the links on the [main page](https://github.com/Fiddlekins/SpookyX).
 
+**v30.11:** *(2015-07-22)* - [GitHub](https://github.com/Fiddlekins/SpookyX/raw/v30.11/SpookyX-noupdate.user.js) - [Readme](https://github.com/Fiddlekins/SpookyX/blob/v30.11/README.md)
+- fixed bug where enabling the mascot made the footer disappear on some archives (notably LiO)
+
+**v30.1:** *(2015-07-22)* - [GitHub](https://github.com/Fiddlekins/SpookyX/raw/v30.1/SpookyX-noupdate.user.js) - [Readme](https://github.com/Fiddlekins/SpookyX/blob/v30.1/README.md)
+- Added Count hidden posts and Auto-hide null hidden counter options to the Post Counter setting to allow control of hidden post counter behaviour
+- fixed bugs with incorrect counting of posts and hidden posts on board view
+
+**v30.01:** *(2015-07-22)* - [GitHub](https://github.com/Fiddlekins/SpookyX/raw/v30.01/SpookyX-noupdate.user.js) - [Readme](https://github.com/Fiddlekins/SpookyX/blob/v30.01/README.md)
+- fixed bug where the script would crash due to changed favicon setting references
+
+**v30.0:** *(2015-07-22)* - [GitHub](https://github.com/Fiddlekins/SpookyX/raw/v30.0/SpookyX-noupdate.user.js) - [Readme](https://github.com/Fiddlekins/SpookyX/blob/v30.0/README.md)
+- Added Custom Favicons option under the Favicon setting. With this turned off SpookyX will attempt to generate dynamic favicons from the site's default favicon. Turning this on will let you set specific custom favicons as before
+- Added Process spoilered images option to Inline Images. This has no effect on the moe archives but on other ones it will replace a spoiler image with a faded target image that can be clicked to expand and has image hover capabilties
+- fixed bug with setting join lines incorrectly displaying in certain cases when opening the menu onto the Filter tab and then switching over to Main tab
+- fixed bug where embedding too many images would crush the post header (name, date, other details)
+- fixed bug where certain multi-embed links ignored the embed image limit
+- fixed bug where posts with multiple embeddable links resulted in image dimensions being erroneously added multiple times
+
 **v29.92:** *(2015-07-16)* - [GitHub](https://github.com/Fiddlekins/SpookyX/raw/v29.92/SpookyX-noupdate.user.js) - [Readme](https://github.com/Fiddlekins/SpookyX/blob/v29.92/README.md)
 - New Feature: Label Deletions adds '[Deleted]' beside the trashcan icon to allow easier searching for deleted posts
 
