@@ -2,6 +2,42 @@ The changelog becomes progressively more comprehensive as I became progressively
 
 The links to individual versions below are to copies of the script with the update URL removed. If you want automatic updates, install the script from the links on the [main page](https://github.com/Fiddlekins/SpookyX).
 
+**v31.21:** *(2015-08-06)* - [GitHub](https://github.com/Fiddlekins/SpookyX/raw/v31.21/SpookyX-noupdate.user.js) - [Readme](https://github.com/Fiddlekins/SpookyX/blob/v31.21/README.md)
+- fixed bug where disabling gif autoplaying went horribly wrong
+
+**v31.2:** *(2015-08-06)* - [GitHub](https://github.com/Fiddlekins/SpookyX/raw/v31.2/SpookyX-noupdate.user.js) - [Readme](https://github.com/Fiddlekins/SpookyX/blob/v31.2/README.md)
+- Altered the upload button text to more accurately reflect what is being uploaded through the file upload feature
+- fixed a bug where the crosslinkTracker wasn't fully working as intended
+- fixed bug where opening a thread in a new tab without visiting it was considering any posts within the viewport to be seen anyway
+- fixed bug where having multiple replies to your post come through with a single update fetch resulted in the alert favicon persisting even after the unseen post counter fell to zero
+- largely addressed bug that was exacerbated by regenerating hover events for all media in thread frequently
+
+**v31.1:** *(2015-07-27)* - [GitHub](https://github.com/Fiddlekins/SpookyX/raw/v31.1/SpookyX-noupdate.user.js) - [Readme](https://github.com/Fiddlekins/SpookyX/blob/v31.1/README.md)
+- The file upload now supports multiple files concurrently
+- The file upload now supports filetypes that are not images
+ - Anything that isn't an image is instead uploaded to mixtape.moe and the returned link will be appended to the post as usual
+ - It's worth noting that SpookyX will only attempt to embed images and videos however so other files will just be left linked
+ - Lastly, executables (.exe) are not accepted by mixtape.moe due to risk of viruses so you cannot upload these
+
+**v31.0:** *(2015-07-26)* - [GitHub](https://github.com/Fiddlekins/SpookyX/raw/v31.0/SpookyX-noupdate.user.js) - [Readme](https://github.com/Fiddlekins/SpookyX/blob/v31.0/README.md)
+- New Feature: when a thread enters ghost mode the file upload option will remain and you will be able to continue to upload images
+ - This works by uploading the image to Imgur and then appending the generated link to your post. Imgur only supports image uploads so other media cannot be uploaded at present
+ - Free applications have limits on the number of files that can be uploaded in a certain timeframe, beyond which further requests will be refused. If this feature doesn't seem to be working let me know and I'll contact Imgur with a whitelist request
+- New Feature: Export, import and reset settings.
+ - Exporting them will save them as a text file in JSON notation. These can be freely edited if you feel the need. The filename reflects the version of SpookyX that was used to export them and also the timestamp of the moment the download was prepped (which isn't actually the same time that you click the export button - the timestamp will however accurately reflect the chronological order they exported in)
+ - Importing them allows you to select a file that comprises of text in JSON notation which will overwrite your present settings
+ - Reset will restore the settings to the default ones
+- amdended the default filtered name comment which had changed from japanese characters to question marks several updates ago
+
+**v30.2:** *(2015-07-24)* - [GitHub](https://github.com/Fiddlekins/SpookyX/raw/v30.2/SpookyX-noupdate.user.js) - [Readme](https://github.com/Fiddlekins/SpookyX/blob/v30.2/README.md)
+- Improved reliability of last post saving
+- Added new option under Custom favicons that allows you to select the image that is displayed on the notifications
+- SpookyX now uses the native site favicon for notifications if you're not using custom ones
+ - If the site favicon is less than 32px in size SpookyX will upscale it with a nearest neighbour algorithm rather than allowing the browser to use its default bicubic one, which has a tendency to make upscaled small resolution images terrible
+ - The nearest neighbour implementation will only upscale by a discrete ratios however so if for some reason the native site favicon has a favicon with side length of a number that isn't a power of 2 the browser will upscale it again a bit with its native scaling algorithm
+ - e.g. a site with a native favicon that is 20px by 20px will be upscaled by SpookyX to 60px by 60px and the broswer will then upscale it again to 64px by 64px when fitting it into the notification
+- removed Foolz from the sites the script matches
+
 **v30.11:** *(2015-07-22)* - [GitHub](https://github.com/Fiddlekins/SpookyX/raw/v30.11/SpookyX-noupdate.user.js) - [Readme](https://github.com/Fiddlekins/SpookyX/blob/v30.11/README.md)
 - fixed bug where enabling the mascot made the footer disappear on some archives (notably LiO)
 

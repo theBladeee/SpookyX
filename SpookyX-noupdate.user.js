@@ -2,15 +2,13 @@
 // @name          SpookyX
 // @description   Enhances functionality of FoolFuuka boards. Developed further for more comfortable ghost-posting on the moe archives.
 // @author        Fiddlekins
-// @version       30.11
+// @version       31.21
 // @namespace     https://github.com/Fiddlekins/SpookyX
 // @include       http://archive.4plebs.org/*
 // @include       https://archive.4plebs.org/*
 // @include       https://*archive.moe/*
 // @include       http://archive.loveisover.me/*
 // @include       https://archive.loveisover.me/*
-// @include       http://boards.foolz.us/*
-// @include       https://boards.foolz.us/*
 // @include       http://archive.nyafuu.org/*
 // @include       https://archive.nyafuu.org/*
 // @include       http://*fgts.jp/*
@@ -180,13 +178,13 @@ var settings = {
                     "suboptions": {
                         "unlit": {
                             "name": "Unlit",
-                            "description": "Choose which favicon is used normally. Default is \"http://i.imgur.com/xuadeJ2.png\"",
+                            "description": "Choose which favicon is used normally. Default is \"https://i.imgur.com/xuadeJ2.png\"",
                             "type": "text",
-                            "value": "http://i.imgur.com/xuadeJ2.png"
+                            "value": "https://i.imgur.com/xuadeJ2.png"
                         },
                         "lit": {
                             "name": "Lit",
-                            "description": "Choose which favicon is used to indicate there are unread posts. Preset numbers are 0-4, replace with link to custom image if you desire such as: \"http://i.imgur.com/XGsrewo.png\"",
+                            "description": "Choose which favicon is used to indicate there are unread posts. Preset numbers are 0-4, replace with link to custom image if you desire such as: \"https://i.imgur.com/XGsrewo.png\"",
                             "type": "text",
                             "value": "2"
                         },
@@ -198,9 +196,15 @@ var settings = {
                         },
                         "alertOverlay": {
                             "name": "Alert Overlay",
-                            "description": "The favicon overlay that indicates unread replies. Default is \"http://i.imgur.com/DCXVHHl.png\"",
+                            "description": "The favicon overlay that indicates unread replies. Default is \"https://i.imgur.com/DCXVHHl.png\"",
                             "type": "text",
-                            "value": "http://i.imgur.com/DCXVHHl.png"
+                            "value": "https://i.imgur.com/DCXVHHl.png"
+                        },
+                        "notification": {
+                            "name": "Notification image",
+                            "description": "The image that is displayed in SpookyX generated notifications. 64px square is ideal. Default is \"https://i.imgur.com/HTcKk4Y.png\"",
+                            "type": "text",
+                            "value": "https://i.imgur.com/HTcKk4Y.png"
                         }
                     }
                 }
@@ -442,7 +446,7 @@ var settings = {
                     "name": "Right margin",
                     "description": "Specify the width in pixels of the gap between the end of the posts and the right side of the screen. Negative values set it to equal the mascot width",
                     "type": "number",
-                    "value": 0
+                    "value": -1
                 },
                 "align": {
                     "name": "Align",
@@ -532,7 +536,7 @@ var settings = {
         "name":{
             "name":"Name",
             "value":[
-                {"comment": "#/?????????/;"}
+                {"comment": "#/久保島のミズゴロウ/;"}
             ],
             "threadPostFunction":function(currentPost){return $(currentPost).find('.post_author').html();},
             "responseObjFunction":function(response){return response.name_processed;}
@@ -617,24 +621,26 @@ var settings = {
     }
 };
 
+var defaultSettings = jQuery.extend(true, {}, settings);
+
 var defaultMascots = [
-    "http://i.imgur.com/l2rGSUs.png",
-    "http://i.imgur.com/QudFqBK.png",
-    "http://i.imgur.com/YtdTqBW.png",
-    "http://i.imgur.com/cinWJsP.png",
-    "http://i.imgur.com/CrjD09g.png",
-    "http://i.imgur.com/r6RuI3Q.png",
-    "http://i.imgur.com/U9NQ0aQ.png",
-    "http://i.imgur.com/avlBCUC.png",
-    "http://i.imgur.com/RSealGL.png",
-    "http://i.imgur.com/ZTf8d85.png",
-    "http://i.imgur.com/47Nf9WQ.png",
-    "http://i.imgur.com/zw1NtJZ.png",
-    "http://i.imgur.com/jIx9a5q.png",
-    "http://i.imgur.com/IGT97Rg.png",
-    "http://i.imgur.com/Q8OSBd4.png",
-    "http://i.imgur.com/T5LyxZ3.png",
-    "http://i.imgur.com/xdcWW4m.png"
+    "https://i.imgur.com/l2rGSUs.png",
+    "https://i.imgur.com/QudFqBK.png",
+    "https://i.imgur.com/YtdTqBW.png",
+    "https://i.imgur.com/cinWJsP.png",
+    "https://i.imgur.com/CrjD09g.png",
+    "https://i.imgur.com/r6RuI3Q.png",
+    "https://i.imgur.com/U9NQ0aQ.png",
+    "https://i.imgur.com/avlBCUC.png",
+    "https://i.imgur.com/RSealGL.png",
+    "https://i.imgur.com/ZTf8d85.png",
+    "https://i.imgur.com/47Nf9WQ.png",
+    "https://i.imgur.com/zw1NtJZ.png",
+    "https://i.imgur.com/jIx9a5q.png",
+    "https://i.imgur.com/IGT97Rg.png",
+    "https://i.imgur.com/Q8OSBd4.png",
+    "https://i.imgur.com/T5LyxZ3.png",
+    "https://i.imgur.com/xdcWW4m.png"
 ];
 
 if (localStorage.SpookyXsettings !== undefined){
@@ -681,9 +687,16 @@ if (settings.UserSettings.inlineImages.suboptions.customSize.value){
 }
 
 var yourPostsLookup = {};
-var crosslinkTracker = {};
-if (localStorage.crosslinkTracker === undefined){
-    localStorage.crosslinkTracker = "{}";
+if (/^(board|[0-9]+)$/.test(threadID)){
+    var crosslinkTracker = {};
+    if (localStorage.crosslinkTracker !== undefined){
+        crosslinkTracker = JSON.parse(localStorage.crosslinkTracker);
+    }
+    if (crosslinkTracker[board] === undefined){
+        crosslinkTracker[board] = {};
+    }
+    crosslinkTracker[board][threadID] = {};
+    localStorage.crosslinkTracker = JSON.stringify(crosslinkTracker);
 }
 
 var faviconUnlit;
@@ -694,16 +707,17 @@ var faviconState = "unlit";
 function generateFavicons(){ // Generate dynamic favicons
     if (settings.UserSettings.favicon.suboptions.customFavicons.value){
         switch(settings.UserSettings.favicon.suboptions.customFavicons.suboptions.lit.value) {
-            case "0": settings.UserSettings.favicon.suboptions.customFavicons.suboptions.lit.value = "http://i.imgur.com/7iTgtjy.png"; settings.UserSettings.favicon.suboptions.customFavicons.suboptions.alert.value = "http://i.imgur.com/QrkQSo0.png"; break;
-            case "1": settings.UserSettings.favicon.suboptions.customFavicons.suboptions.lit.value = "http://i.imgur.com/AWVjxfw.png"; settings.UserSettings.favicon.suboptions.customFavicons.suboptions.alert.value = "http://i.imgur.com/KXIPcD9.png"; break;
-            case "2": settings.UserSettings.favicon.suboptions.customFavicons.suboptions.lit.value = "http://i.imgur.com/S7uBSPZ.png"; settings.UserSettings.favicon.suboptions.customFavicons.suboptions.alert.value = "http://i.imgur.com/7IxJvBN.png"; break;
-            case "3": settings.UserSettings.favicon.suboptions.customFavicons.suboptions.lit.value = "http://i.imgur.com/Rt8dEaq.png"; settings.UserSettings.favicon.suboptions.customFavicons.suboptions.alert.value = "http://i.imgur.com/tvJjpqF.png"; break;
-            case "4": settings.UserSettings.favicon.suboptions.customFavicons.suboptions.lit.value = "http://i.imgur.com/3bRaVUl.png"; settings.UserSettings.favicon.suboptions.customFavicons.suboptions.alert.value = "http://i.imgur.com/5Bv27Co.png"; break;
+            case "0": settings.UserSettings.favicon.suboptions.customFavicons.suboptions.lit.value = "https://i.imgur.com/7iTgtjy.png"; settings.UserSettings.favicon.suboptions.customFavicons.suboptions.alert.value = "https://i.imgur.com/QrkQSo0.png"; break;
+            case "1": settings.UserSettings.favicon.suboptions.customFavicons.suboptions.lit.value = "https://i.imgur.com/AWVjxfw.png"; settings.UserSettings.favicon.suboptions.customFavicons.suboptions.alert.value = "https://i.imgur.com/KXIPcD9.png"; break;
+            case "2": settings.UserSettings.favicon.suboptions.customFavicons.suboptions.lit.value = "https://i.imgur.com/S7uBSPZ.png"; settings.UserSettings.favicon.suboptions.customFavicons.suboptions.alert.value = "https://i.imgur.com/7IxJvBN.png"; break;
+            case "3": settings.UserSettings.favicon.suboptions.customFavicons.suboptions.lit.value = "https://i.imgur.com/Rt8dEaq.png"; settings.UserSettings.favicon.suboptions.customFavicons.suboptions.alert.value = "https://i.imgur.com/tvJjpqF.png"; break;
+            case "4": settings.UserSettings.favicon.suboptions.customFavicons.suboptions.lit.value = "https://i.imgur.com/3bRaVUl.png"; settings.UserSettings.favicon.suboptions.customFavicons.suboptions.alert.value = "https://i.imgur.com/5Bv27Co.png"; break;
             default: break;
         }
         faviconUnlit = settings.UserSettings.favicon.suboptions.customFavicons.suboptions.unlit.value; // Store unlit favicon
         faviconLit = settings.UserSettings.favicon.suboptions.customFavicons.suboptions.lit.value; // Store lit favicon
         faviconAlert = settings.UserSettings.favicon.suboptions.customFavicons.suboptions.alert.value; // Store alert favicon
+        faviconNotification = settings.UserSettings.favicon.suboptions.customFavicons.suboptions.notification.value; // Store notification favicon
         setFavicon();
     }else{
         var faviconCanvas = document.createElement('canvas');
@@ -718,6 +732,25 @@ function generateFavicons(){ // Generate dynamic favicons
             faviconUnlit = faviconCanvas.toDataURL('image/png'); // Store unlit favicon
             var faviconData = ctx.getImageData(0, 0, faviconCanvas.height, faviconCanvas.width);
             var meanColour = [0,0,0,0];
+            var scale = Math.floor(64/faviconCanvas.width);
+            var faviconNotificationData = faviconData;
+            if (scale-1){ // Only upscale if scale is 2 or more
+                faviconNotificationData = new ImageData(scale*faviconCanvas.width, scale*faviconCanvas.height);
+                for (var i=0; i<scale; i++){                    
+                    for (var j=0; j<scale; j++){
+                        for (var x=0, width=faviconCanvas.width, widths=width*4; x<widths; x+=4){
+                            for (var y=0, height=faviconCanvas.height, heights=height*4; y<heights; y+=4){
+                                var start = x+(y*width);
+                                var end = (((x)*scale)+((y)*width*scale*scale))+(4*i)+(4*j*height*scale);
+                                faviconNotificationData.data[end] = faviconData.data[start];
+                                faviconNotificationData.data[end+1] = faviconData.data[start+1];
+                                faviconNotificationData.data[end+2] = faviconData.data[start+2];
+                                faviconNotificationData.data[end+3] = faviconData.data[start+3];                            
+                            }
+                        }
+                    }
+                }
+            }
             for (var i=0, len=faviconData.data.length; i<len; i++){
                 meanColour[i%4] += faviconData.data[i];
             }
@@ -740,6 +773,12 @@ function generateFavicons(){ // Generate dynamic favicons
             faviconLit = faviconCanvas.toDataURL('image/png'); // Store lit favicon
             ctx.drawImage(overlayFavicon[0], 0, 0, faviconCanvas.height, faviconCanvas.width); // Draw alert symbol on canvas
             faviconAlert = faviconCanvas.toDataURL('image/png'); // Store alert favicon
+            if (scale){
+                faviconCanvas.height *= scale;
+                faviconCanvas.width *= scale;
+            }
+            ctx.putImageData(faviconNotificationData, 0, 0); // Draw faviconNotification on canvas
+            faviconNotification = faviconCanvas.toDataURL('image/png'); // Store notification favicon
             setFavicon();
         });
     }
@@ -1034,7 +1073,7 @@ function inlineImages(posts){
                     $currentImage.prepend('<video width="'+($(post).hasClass('thread') ? imageWidthOP : imageWidth)+'" name="media" loop muted '+autoplayVid+'><source src="'+fullImage+'" type="video/webm"></video>');
                     $(imgLink).remove();
                     if (settings.UserSettings.inlineImages.suboptions.delayedLoad.value){
-                        videoHover();
+                        addHover($currentImage);
                     }
                 }else if (!fullImage.match(/(\.pdf|\.swf)$/)){
                     $currentImage.find('img').each(function(k,image){
@@ -1200,15 +1239,15 @@ var embedImages = function(posts){
                     imgNum--;
                     var filename = '<div class="post_file embedded_post_file"><a href="'+mediaLink+'" class="post_file_filename" rel="tooltip" title="'+mediaLink+'">'+mediaLink.match(/[^\/]*/g)[mediaLink.match(/[^\/]*/g).length -2]+'</a></div>';
                     var spoiler = "";
-                    var elem = $('<div class="thread_image_box">'+filename+'</div>').insertBefore($currentArticle.find('header'));
+                    var $elem = $('<div class="thread_image_box">'+filename+'</div>').insertBefore($currentArticle.find('header'));
                     if($(this).parents('.spoiler').length){
                         spoiler = "spoilerImage ";
-                        elem.append('<div class="spoilerText">Spoiler</div>');
+                        $elem.append('<div class="spoilerText">Spoiler</div>');
                     }
                     if (mediaType == "image"){
-                        elem.append('<a href="'+mediaLink+'" target="_blank" rel="noreferrer" class="thread_image_link"><img src="'+mediaLink+'" class="lazyload post_image '+spoiler+'smallImage"></a>');
+                        $elem.append('<a href="'+mediaLink+'" target="_blank" rel="noreferrer" class="thread_image_link"><img src="'+mediaLink+'" class="lazyload post_image '+spoiler+'smallImage"></a>');
                         removeLink(currentLink);
-                        var $image = elem.find('img');
+                        var $image = $elem.find('img');
                         if (!$image.attr('loadEventSet')){
                             $image.attr('loadEventSet',true);
                             $image.on('load', function(e){
@@ -1217,18 +1256,16 @@ var embedImages = function(posts){
                                 $(e.target).closest('.thread_image_box').append('<br><span class="post_file_metadata">'+e.target.naturalWidth+'x'+e.target.naturalHeight+'</span>'); // Add file dimensions
                             });
                         }
-                        imageHover();
-                        canvasHover();
                     }else if (mediaType == "video"){
                         mediaLink = mediaLink.replace(/\.gifv$/g, ".webm"); // Only tested to work with Imgur
-                        elem.append('<video width="'+imageWidth+'" style="float:left" name="media" loop muted '+autoplayVid+' class="'+spoiler+'"><source src="'+mediaLink+'" type="video/webm"></video>');
+                        $elem.append('<video width="'+imageWidth+'" style="float:left" name="media" loop muted '+autoplayVid+' class="'+spoiler+'"><source src="'+mediaLink+'" type="video/webm"></video>');
                         removeLink(currentLink);
-                        elem.find('video')[0].onloadedmetadata = function(e){
+                        $elem.find('video')[0].onloadedmetadata = function(e){
                             $(e.target).closest('.thread_image_box').find(".spoilerText").css({"top":(e.target.clientHeight/2)-6.5}); // Center spoiler text
                             $(e.target).closest('.thread_image_box').append('<br><span class="post_file_metadata">'+e.target.videoWidth+'x'+e.target.videoHeight+'</span>'); // Add file dimensions
                         };
-                        if(settings.UserSettings.inlineImages.suboptions.videoHover.value){videoHover();}
                     }
+                    addHover($elem);
                 }else if (settings.UserSettings.embedGalleries.value && pattImgGal.exec(currentLink.href) !== null){
                     var imgurLinkFragments = currentLink.href.split('\/');
                     if (imgurLinkFragments[3] == "a"){
@@ -1271,8 +1308,7 @@ var embedImages = function(posts){
                             }
                         });
                         if (allDisplayed){removeLink(currentLink);}
-                        imageHover();
-                        canvasHover();
+                        addHover($currentArticle);
                     }
                 }else{
                     if(!(/&gt;&gt;/).test(mediaLink)){
@@ -1298,123 +1334,128 @@ function removeLink(currentLink){
 function pauseGifs(posts){
     posts.each(function(i,img){
         if ((/\.gif/).test(img.src)){
-            $(img).on('load',function(){
-                $(img).after('<canvas class="smallImage" width="'+img.naturalWidth+'" height="'+img.naturalHeight+'"></canvas>');
-                $(img).attr('gif',true).toggle();
-                $(img).addClass("bigImage").removeClass("smallImage");
-                var canvas = $(img).next('canvas');
+            var $img = $(img);
+            $img.on('load',function(){
+                $img.after('<canvas class="smallImage" width="'+img.naturalWidth+'" height="'+img.naturalHeight+'"></canvas>');
+                $img.attr('gif',true).toggle();
+                $img.addClass("bigImage").removeClass("smallImage");
+                var canvas = $img.next('canvas');
                 canvas[0].getContext("2d").drawImage(img,0,0);
-                canvasHover();
+                addHover($img.parent());
             });
         }
     });
 }
 
-function imageHover(){
-    if(settings.UserSettings.inlineImages.value && settings.UserSettings.inlineImages.suboptions.imageHover.value){
-        var $image = $('img');
-        $image.off("mouseenter mousemove mouseout");
-        $image.on("mouseenter", function(e){
-            if(e.target.id !== "mascot" && !$(e.target).hasClass("bigImage") && !$(e.target).data('dontHover')){
-                $(e.target).clone().removeClass("smallImage spoilerImage").addClass("hoverImage").appendTo('#hoverUI');
-            }
-        });
-        $image.on("mousemove mouseenter", function(e){
-            var etarget = e.target;
-            var $etarget = $(etarget);
-            if(!$etarget.hasClass("bigImage") && !$etarget.data('dontHover')){
-                var headerBarHeight = document.getElementById('headerFixed').offsetHeight -1; // -1 due to slight offscreen to hide border-top
-                var headerBarWidth = document.getElementById('headerFixed').offsetWidth -1; // -1 due to slight offscreen to hide border-right
-                var windowWidth = $('body').innerWidth(); // Define internal dimensions
-                var windowHeight = window.innerHeight -21; // -21 so link destination doesn't overlay image
-                var visibleHeight = windowHeight - headerBarHeight;
-                var visibleWidth = windowWidth - e.clientX - 50;
-                var canFitFullHeight = windowHeight*etarget.naturalWidth/etarget.naturalHeight < visibleWidth - headerBarWidth +1;
-                var $img = $('#hoverUI > img');
-                $img.css({
-                    "max-height": canFitFullHeight ? windowHeight : visibleHeight,
-                    "max-width": visibleWidth,
-                    "top": canFitFullHeight ? (windowHeight - $img[0].height)*(e.clientY / windowHeight) : (visibleHeight - $img[0].height)*(e.clientY / visibleHeight) + headerBarHeight,
-                    "left":e.clientX + 50
-                });
-            }
-        });
-        $image.on("mouseout", function(e){
-            $('#hoverUI').html('');
-        });
+function addHover($elements){
+    if(settings.UserSettings.inlineImages.value){
+        if (settings.UserSettings.inlineImages.suboptions.imageHover.value){
+            var $image = $elements.find('img');
+            var $canvas = $elements.find('canvas');
+            if ($image.length){imageHover($image);}
+            if ($canvas.length){canvasHover($canvas);}
+        }
+        if (settings.UserSettings.inlineImages.suboptions.videoHover.value){
+            var $video = $elements.find('video');
+            if ($video.length){videoHover($video);}
+        }
     }
 }
 
-function canvasHover(){
-    if(settings.UserSettings.inlineImages.value && settings.UserSettings.inlineImages.suboptions.imageHover.value){
-        var $canvas = $('canvas');
-        $canvas.off("mouseenter mousemove mouseout");
-        $canvas.on("mouseenter", function(e){
-            if(e.target.id !== "myCanvas"){
-                $(e.target.previousSibling).clone().show().removeClass("spoilerImage").addClass("hoverImage").appendTo('#hoverUI');
-            }
-        });
-        $canvas.on("mousemove mouseenter", function(e){
-            var etarget = e.target;
-            var $etarget = $(etarget);
-            if(!$etarget.hasClass("bigImage") && !$etarget.data('dontHover')){
-                var headerBarHeight = document.getElementById('headerFixed').offsetHeight -1; // -1 due to slight offscreen to hide border-top
-                var headerBarWidth = document.getElementById('headerFixed').offsetWidth -1; // -1 due to slight offscreen to hide border-right
-                var windowWidth = $('body').innerWidth(); // Define internal dimensions
-                var windowHeight = window.innerHeight -21; // -21 so link destination doesn't overlay image
-                var visibleHeight = windowHeight - headerBarHeight;
-                var visibleWidth = windowWidth - e.clientX - 50;
-                var canFitFullHeight = windowHeight*etarget.naturalWidth/etarget.naturalHeight < visibleWidth - headerBarWidth +1;
-                var $img = $('#hoverUI > img');
-                $img.css({
-                    "max-height": canFitFullHeight ? windowHeight : visibleHeight,
-                    "max-width": visibleWidth,
-                    "top": canFitFullHeight ? (windowHeight - $img[0].height)*(e.clientY / windowHeight) : (visibleHeight - $img[0].height)*(e.clientY / visibleHeight) + headerBarHeight,
-                    "left":e.clientX + 50
-                });
-            }
-        });
-        $canvas.on("mouseout", function(e){
-            $('#hoverUI').html('');
-        });
-    }
+function imageHover($image){
+    $image.on("mouseenter", function(e){
+        if(e.target.id !== "mascot" && !$(e.target).hasClass("bigImage") && !$(e.target).data('dontHover')){
+            $(e.target).clone().removeClass("smallImage spoilerImage").addClass("hoverImage").appendTo('#hoverUI');
+        }
+    });
+    $image.on("mousemove mouseenter", function(e){
+        var etarget = e.target;
+        var $etarget = $(etarget);
+        if(!$etarget.hasClass("bigImage") && !$etarget.data('dontHover')){
+            var headerBarHeight = document.getElementById('headerFixed').offsetHeight -1; // -1 due to slight offscreen to hide border-top
+            var headerBarWidth = document.getElementById('headerFixed').offsetWidth -1; // -1 due to slight offscreen to hide border-right
+            var windowWidth = $('body').innerWidth(); // Define internal dimensions
+            var windowHeight = window.innerHeight -21; // -21 so link destination doesn't overlay image
+            var visibleHeight = windowHeight - headerBarHeight;
+            var visibleWidth = windowWidth - e.clientX - 50;
+            var canFitFullHeight = windowHeight*etarget.naturalWidth/etarget.naturalHeight < visibleWidth - headerBarWidth +1;
+            var $img = $('#hoverUI > img');
+            $img.css({
+                "max-height": canFitFullHeight ? windowHeight : visibleHeight,
+                "max-width": visibleWidth,
+                "top": canFitFullHeight ? (windowHeight - $img[0].height)*(e.clientY / windowHeight) : (visibleHeight - $img[0].height)*(e.clientY / visibleHeight) + headerBarHeight,
+                "left":e.clientX + 50
+            });
+        }
+    });
+    $image.on("mouseout", function(e){
+        $('#hoverUI').html('');
+    });
 }
 
-function videoHover(){
-    if(settings.UserSettings.inlineImages.value && settings.UserSettings.inlineImages.suboptions.videoHover.value){
-        $('video').off("mouseenter mousemove mouseout");
-        $('video').on("mouseenter", function(e){
-            if(e.target.id !== "mascot" && !$(e.target).hasClass("fullVideo")){
-                $(e.target).clone().removeClass("spoilerImage").addClass("fullVideo hoverImage").appendTo('#hoverUI');
-                var $video = $('#hoverUI > video');
-                $video.removeAttr('width');
-                $video.on('canplaythrough', function(){
-                    if ($video.length){ // Check if video still exists. This is to prevent the problem where mousing out too soon still triggers the canplay event
-                        $video[0].muted=false;
-                        $video[0].play();
-                        $('video').on("mousemove", function(e){
-                            var headerBarHeight = document.getElementById('headerFixed').offsetHeight -1; // -1 due to slight offscreen to hide border-top
-                            var headerBarWidth = document.getElementById('headerFixed').offsetWidth -1; // -1 due to slight offscreen to hide border-right
-                            var windowWidth = $('body').innerWidth(); // Define internal dimensions
-                            var windowHeight = window.innerHeight;
-                            var visibleHeight = windowHeight - headerBarHeight;
-                            var visibleWidth = windowWidth - e.clientX - 50;
-                            var canFitFullHeight = windowHeight*e.target.videoWidth/e.target.videoHeight < visibleWidth - headerBarWidth +1;
-                            $video.css({
-                                "max-height": canFitFullHeight ? windowHeight : visibleHeight,
-                                "max-width": visibleWidth,
-                                "top": canFitFullHeight ? (windowHeight - $video[0].clientHeight)*(e.clientY / windowHeight) : (visibleHeight - $video[0].clientHeight)*(e.clientY / visibleHeight) + headerBarHeight,
-                                "left":e.clientX + 50
-                            });
+function canvasHover($canvas){
+    $canvas.on("mouseenter", function(e){
+        if(e.target.id !== "myCanvas"){
+            $(e.target.previousSibling).clone().show().removeClass("spoilerImage").addClass("hoverImage").appendTo('#hoverUI');
+        }
+    });
+    $canvas.on("mousemove mouseenter", function(e){
+        var etarget = e.target;
+        var $etarget = $(etarget);
+        if(!$etarget.hasClass("bigImage") && !$etarget.data('dontHover')){
+            var headerBarHeight = document.getElementById('headerFixed').offsetHeight -1; // -1 due to slight offscreen to hide border-top
+            var headerBarWidth = document.getElementById('headerFixed').offsetWidth -1; // -1 due to slight offscreen to hide border-right
+            var windowWidth = $('body').innerWidth(); // Define internal dimensions
+            var windowHeight = window.innerHeight -21; // -21 so link destination doesn't overlay image
+            var visibleHeight = windowHeight - headerBarHeight;
+            var visibleWidth = windowWidth - e.clientX - 50;
+            var canFitFullHeight = windowHeight*etarget.naturalWidth/etarget.naturalHeight < visibleWidth - headerBarWidth +1;
+            var $img = $('#hoverUI > img');
+            $img.css({
+                "max-height": canFitFullHeight ? windowHeight : visibleHeight,
+                "max-width": visibleWidth,
+                "top": canFitFullHeight ? (windowHeight - $img[0].height)*(e.clientY / windowHeight) : (visibleHeight - $img[0].height)*(e.clientY / visibleHeight) + headerBarHeight,
+                "left":e.clientX + 50
+            });
+        }
+    });
+    $canvas.on("mouseout", function(e){
+        $('#hoverUI').html('');
+    });
+}
+
+function videoHover($video){
+    $video.on("mouseenter", function(e){
+        if(e.target.id !== "mascot" && !$(e.target).hasClass("fullVideo")){
+            $(e.target).clone().removeClass("spoilerImage").addClass("fullVideo hoverImage").appendTo('#hoverUI');
+            var $vid = $('#hoverUI > video');
+            $vid.removeAttr('width');
+            $vid.on('canplaythrough', function(){
+                if ($vid.length){ // Check if video still exists. This is to prevent the problem where mousing out too soon still triggers the canplay event
+                    $vid[0].muted=false;
+                    $vid[0].play();
+                    $video.on("mousemove", function(e){
+                        var headerBarHeight = document.getElementById('headerFixed').offsetHeight -1; // -1 due to slight offscreen to hide border-top
+                        var headerBarWidth = document.getElementById('headerFixed').offsetWidth -1; // -1 due to slight offscreen to hide border-right
+                        var windowWidth = $('body').innerWidth(); // Define internal dimensions
+                        var windowHeight = window.innerHeight;
+                        var visibleHeight = windowHeight - headerBarHeight;
+                        var visibleWidth = windowWidth - e.clientX - 50;
+                        var canFitFullHeight = windowHeight*e.target.videoWidth/e.target.videoHeight < visibleWidth - headerBarWidth +1;
+                        $vid.css({
+                            "max-height": canFitFullHeight ? windowHeight : visibleHeight,
+                            "max-width": visibleWidth,
+                            "top": canFitFullHeight ? (windowHeight - $vid[0].clientHeight)*(e.clientY / windowHeight) : (visibleHeight - $vid[0].clientHeight)*(e.clientY / visibleHeight) + headerBarHeight,
+                            "left":e.clientX + 50
                         });
-                    }
-                });
-            }
-        });
-        $('video').on("mouseout", function(e){
-            $('#hoverUI').html('');
-        });
-    }
+                    });
+                }
+            });
+        }
+    });
+    $video.on("mouseout", function(e){
+        $('#hoverUI').html('');
+    });
 }
 
 function relativeTimestamps(posts){
@@ -1513,6 +1554,7 @@ function seenPosts(){
 
 var unseenReplies = [];
 function newPosts(){
+    //console.log("ayyy");
     if (settings.UserSettings.favicon.value){
         if (unseenPosts.length){
             //console.time('lastpost');
@@ -1562,23 +1604,23 @@ function newPosts(){
             }
             if (predictedLastSeenPostIndex >= 0){
                 lastSeenPost = unseenPosts[predictedLastSeenPostIndex]; // Update last seen post
+                saveLastSeenPosts(); // Save new last seen post
                 unseenPosts = unseenPosts.slice(predictedLastSeenPostIndex + 1); // Only keep posts after the lastSeenPost
 
                 var parsedLastSeenPost = [parseInt(lastSeenPost.split('_')[0]),parseInt(lastSeenPost.split('_')[1])];
-                $.each(unseenReplies, function(i, unseenID){
-                    var currentID = [parseInt(unseenID.split('_')[0]),parseInt(unseenID.split('_')[1])];                        
+                var unseenRepliesTemp = []; // Avoid trying to remove entries from an array that is being iterated over
+                $.each(unseenReplies, function(i, unseenID){ // Work from a copy of the array so that removing elements from it doesn't ruin everything
+                    var currentID = [parseInt(unseenID.split('_')[0]),parseInt(unseenID.split('_')[1])];
                     if (currentID[0] < parsedLastSeenPost[0]){
-                        unseenReplies.splice(i,1); // Remove seen posts from the unseen replies
-                        return;
-                    }else if (currentID[0] == parsedLastSeenPost[0]){
-                        if(isNaN(parsedLastSeenPost[1]) && !(isNaN(currentID[1]))){
-                            return;
-                        }else if (isNaN(currentID[1]) || currentID[1] <= parsedLastSeenPost[1]){
-                            unseenReplies.splice(i,1); // Remove seen posts from the unseen replies
-                            return;
+                        return true;
+                    }else if (currentID[0] === parsedLastSeenPost[0]){
+                        if (isNaN(currentID[1]) || (!isNaN(parsedLastSeenPost[1]) && currentID[1] <= parsedLastSeenPost[1])){
+                            return true;
                         }
                     }
+                    unseenRepliesTemp.push(unseenID); // Keep unseenIDs that are greater than the lastSeenPostID
                 });
+                unseenReplies = unseenRepliesTemp;
             }
             //console.timeEnd('lastpost');
         }
@@ -1715,28 +1757,40 @@ function saveYourPosts(){
         }
     }
 }
+function saveLastSeenPosts(){
+    lastSeenPosts[board][threadID] = lastSeenPost;
+    if (localStorage.lastSeenPosts !== undefined){
+        latestLastSeenPosts = JSON.parse(localStorage.lastSeenPosts); // Get the most recent version of the stored object
+        if (latestLastSeenPosts[board] === undefined){
+            latestLastSeenPosts[board] = {threadID:lastSeenPost};
+        }else{
+            if (latestLastSeenPosts[board][threadID] === undefined){
+                latestLastSeenPosts[board][threadID] = lastSeenPost;
+            }else{
+                if (parseInt(latestLastSeenPosts[board][threadID].split('_')[0]) < parseInt(lastSeenPosts[board][threadID].split('_')[0])){
+                    latestLastSeenPosts[board][threadID] = lastSeenPosts[board][threadID];
+                }else if (parseInt(latestLastSeenPosts[board][threadID].split('_')[0]) === parseInt(lastSeenPosts[board][threadID].split('_')[0])){
+                    if (!isNaN(lastSeenPosts[board][threadID].split('_')[1]) && isNaN(latestLastSeenPosts[board][threadID].split('_')[1]) || parseInt(latestLastSeenPosts[board][threadID].split('_')[1]) < parseInt(lastSeenPosts[board][threadID].split('_')[1])){
+                        latestLastSeenPosts[board][threadID] = lastSeenPosts[board][threadID];
+                    }
+                }
+            }
+        }
+        lastSeenPosts = latestLastSeenPosts;
+    }
+    localStorage.lastSeenPosts = JSON.stringify(lastSeenPosts); // Save it again
+}
 window.addEventListener("beforeunload", function (e){ // After user leaves the page
     if (settings.UserSettings.labelYourPosts.value){ // Save the your posts object
         saveYourPosts();
     }
     if (settings.UserSettings.favicon.value){ // Save the last read posts object
-        lastSeenPosts[board][threadID] = lastSeenPost;
-        if (localStorage.lastSeenPosts === undefined){
-            localStorage.lastSeenPosts = JSON.stringify(lastSeenPosts);
-        }else{
-            latestLastSeenPosts = JSON.parse(localStorage.lastSeenPosts); // Get the most recent version of the stored object
-            if (latestLastSeenPosts[board] !== undefined && latestLastSeenPosts[board][threadID] !== undefined){
-                if (parseInt(latestLastSeenPosts[board][threadID].split('_')[0]) > parseInt(lastSeenPosts[board][threadID].split('_')[0])){
-                    lastSeenPosts[board][threadID] = latestLastSeenPosts[board][threadID];
-                }else if (parseInt(latestLastSeenPosts[board][threadID].split('_')[0]) == parseInt(lastSeenPosts[board][threadID].split('_')[0])){
-                    if (isNaN(lastSeenPosts[board][threadID].split('_')[1]) || parseInt(latestLastSeenPosts[board][threadID].split('_')[1]) > parseInt(lastSeenPosts[board][threadID].split('_')[1])){
-                        lastSeenPosts[board][threadID] = latestLastSeenPosts[board][threadID];
-                    }
-                }
-            }
-            localStorage.lastSeenPosts = JSON.stringify(lastSeenPosts); // Save it again
-        }
+        saveLastSeenPosts();
     }
+    crosslinkTracker = JSON.parse(localStorage.crosslinkTracker);
+    delete crosslinkTracker[board][threadID];
+    localStorage.crosslinkTracker = JSON.stringify(crosslinkTracker);
+
     //var confirmationMessage = "\o/";
 
     //(e || window.event).returnValue = confirmationMessage; //Gecko + IE
@@ -1788,11 +1842,11 @@ function notificationSpoiler(postID){
 }
 
 function labelNewPosts(newPosts, boardView){
-    var crosslinkTracker = JSON.parse(localStorage.crosslinkTracker);
-    localStorage.crosslinkTracker = "{}";
     loadYourPosts();
+    var crosslinkTracker = JSON.parse(localStorage.crosslinkTracker);
     for (var boardVal in yourPosts){
-        if (crosslinkTracker[boardVal]){
+        if (crosslinkTracker[board][threadID][boardVal]){
+            crosslinkTracker[board][threadID][boardVal] = false;
             if (yourPostsLookup[boardVal] === undefined){
                 yourPostsLookup[boardVal] = {};
             }
@@ -1813,7 +1867,7 @@ function labelNewPosts(newPosts, boardView){
                     if (!notificationTriggered && !boardView){
                         if (!settings.UserSettings.filter.value || !settings.UserSettings.filter.suboptions.filterNotifications.value || $('#'+postID+':visible').length){ // Filter notifications
                             if (settings.UserSettings.notifications.value){
-                                notifyMe($('#'+postID+' .post_poster_data').text().trim()+" replied to you","http://i.imgur.com/HTcKk4Y.png",notificationSpoiler(postID),true);
+                                notifyMe($('#'+postID+' .post_poster_data').text().trim()+" replied to you",faviconNotification,notificationSpoiler(postID),true);
                             }
                             unseenReplies.push(postID); // add postID to list of unseen replies
                             notificationTriggered = true;
@@ -2144,6 +2198,87 @@ function headerBar(){
     }
 }
 
+function addFileSelect(){
+    if(!$('#file_image').length){
+        $('#reply_elitterae').parent().parent().append('<div class="input-prepend"><label class="add-on" for="file_image">File</label><input type="file" name="file_image" id="file_image" size="16" multiple="multiple"></div>');
+        $('.input-append.pull-left .btn-group [name=reply_gattai]').attr('id','finalReplySubmit').hide();
+        if (!$('#middleReplySubmit').length){
+            $('.input-append.pull-left .btn-group').prepend('<input id="middleReplySubmit" value="Submit" class="btn btn-primary" type="button">');
+            var $middleReplySubmit = $('#middleReplySubmit');
+            $middleReplySubmit.on('click', function(){
+                var fileCount = document.getElementById('file_image').files.length;
+                $middleReplySubmit.val('Uploading File'+(fileCount > 1 ? 's' : '')).attr('disabled','disabled');
+                if (fileCount){
+                    $.each(document.getElementById('file_image').files, function(i,file){
+                        var reader = new FileReader();
+                        if (/image/.test(file.type)){
+                            reader.readAsDataURL(file);
+                            var clientId = '6a7827b84201f31';
+                            reader.onloadend = function(){
+                                $.ajax({
+                                    url: "https://api.imgur.com/3/image",
+                                    type: 'POST',
+                                    headers: {
+                                        Authorization: 'Client-ID ' + clientId
+                                    },
+                                    data: {
+                                        image: reader.result.replace(/data:.*;base64,/,''),
+                                        type: 'base64',
+                                        name: file.name
+                                    }
+                                }).done(function(response){
+                                    fileCount--;
+                                    $('#reply_chennodiscursus')[0].value += "\n"+response.data.link.replace(/http:/,'https:');
+                                    if (!fileCount){
+                                        $middleReplySubmit.val('Submitting');
+                                        $('#file_image').val('');
+                                        $('#finalReplySubmit').trigger('click');
+                                    }
+                                });
+                            };
+                        }else if(!/application/.test(file.type)){
+                            var data = new FormData();
+                            data.append('files[]', file);
+                            var xhr = new XMLHttpRequest();
+                            xhr.open('POST', 'https://mixtape.moe/upload.php', true);
+                            xhr.addEventListener('load', function(e){
+                                fileCount--;
+                                $('#reply_chennodiscursus')[0].value += "\n"+JSON.parse(xhr.responseText).files[0].url;
+                                if (!fileCount){
+                                    $middleReplySubmit.val('Submitting');
+                                    $('#file_image').val('');
+                                    $('#finalReplySubmit').trigger('click');
+                                }
+                            });
+                            xhr.send(data);
+                        }else{
+                            $middleReplySubmit.val('Filetype is not supported').removeAttr('disabled');
+                            setTimeout(function(){ $middleReplySubmit.val('Submit'); }, 3000);
+                        }
+                    });
+                }else{
+                    $middleReplySubmit.val('Submitting').attr('disabled','disabled');
+                    $('#finalReplySubmit').trigger('click');
+                }
+            });
+        }else{
+            $('#middleReplySubmit').val('Submit').removeAttr('disabled');
+        }
+    }
+}
+
+function updateExportLink(){ // Define the export settings link with the latest version of the settings
+    $('#settingsExport').attr('download','SpookyX v.'+GM_info.script.version+'-'+Date.now()+'.json');
+    $('#settingsExport').attr('href','data:' + 'text/plain'  +  ';charset=utf-8,' + encodeURIComponent(JSON.stringify(settings)));    
+}
+
+function saveSettings(){
+    settingsStore = {};
+    settingsStore.UserSettings = settingsStrip(settings.UserSettings);
+    settingsStore.FilterSettings = settingsStrip(settings.FilterSettings);
+    localStorage.SpookyXsettings = JSON.stringify(settingsStore); // Save the settings
+}
+
 $(document).ready(function(){
     $('body').append('<div id="postBackgroundColourPicker" class="thread_form_wrap" style="display:none;"></div>'); // Create an element to get the post colour from
     var postBackgroundColourPicker = $('#postBackgroundColourPicker').css('background-color'); // Set the colour
@@ -2170,7 +2305,7 @@ $(document).ready(function(){
     }else{ // Insert settings link when on board index
         $('.container-fluid').append('<div class="headerBar" style="position: fixed; right: 0; top: 0;"><a title="SpookyX Settings" href="javascript:;">Settings</a></div>');
     }
-    $('body').append('<div id="settingsMenu" class="thread_form_wrap" style="display: none;"><div id="settingsHeader"><div class="sections-list"><a href="javascript:;" class="active">Main</a> | <a href="javascript:;">Filter</a></div><div class="credits"><a target="_blank" href="https://github.com/Fiddlekins/SpookyX" style="text-decoration: underline;">SpookyX</a> | <a target="_blank" href="https://github.com/Fiddlekins/SpookyX/blob/master/CHANGELOG.md" style="text-decoration: underline;">v.'+GM_info.script.version+'</a> | <a target="_blank" href="https://github.com/Fiddlekins/SpookyX/issues" style="text-decoration: underline;">Issues</a> | <a target="_blank" href="https://archive.moe/a/thread/126054592" style="text-decoration: underline;">Feedback</a> | <a title="Close" href="javascript:;">Close</a></div></div><div id="menuSeparator"></div><div id="settingsContent"></div></div>'); // <a title="Export" href="javascript:;">Export</a> | <a title="Import" href="javascript:;">Import</a> | <a title="Reset Settings" href="javascript:;">Reset Settings</a> |
+    $('body').append('<div id="settingsMenu" class="thread_form_wrap" style="display: none;"><input type="file" id="fileInput" style="display:none;"><div id="settingsHeader"><div class="sections-list"><a href="javascript:;" class="active">Main</a> | <a href="javascript:;">Filter</a></div><div class="credits"><a id="settingsExport" title="Export" href="javascript:;">Export</a> | <a id="settingsImport" title="Import" href="javascript:;">Import</a> | <a title="Reset Settings" href="javascript:;">Reset Settings</a> | <a target="_blank" href="https://github.com/Fiddlekins/SpookyX" style="text-decoration: underline;">SpookyX</a> | <a target="_blank" href="https://github.com/Fiddlekins/SpookyX/blob/master/CHANGELOG.md" style="text-decoration: underline;">v.'+GM_info.script.version+'</a> | <a target="_blank" href="https://github.com/Fiddlekins/SpookyX/issues" style="text-decoration: underline;">Issues</a> | <a target="_blank" href="https://archive.moe/a/thread/126054592" style="text-decoration: underline;">Feedback</a> | <a title="Close" href="javascript:;">Close</a></div></div><div id="menuSeparator"></div><div id="settingsContent"></div></div>');
     if (settings.UserSettings.gallery.value){$('body').append('<div id="gallery" style="display:none;"></div>');}
     if (/[0-9]+/.test(threadID)){ // If in a thread
         $($('.navbar .nav')[1]).append('<li><a href="//boards.4chan.org/'+board+'/thread/'+threadID+'">View thread on 4chan</a></li>'); // Add view thread on 4chan link
@@ -2189,7 +2324,7 @@ $(document).ready(function(){
         $('#headerFixed').show();            
     }
     $('.sections-list').on('click', function(e){ // Main settings tabs change on click
-        if (e.target.tagName == "A"){
+        if (e.target.tagName === "A"){
             $('#settingsContent #'+$('.sections-list .active').html()).hide();
             $('.sections-list .active').removeClass('active');
             $(e.target).addClass('active');
@@ -2197,12 +2332,43 @@ $(document).ready(function(){
         }
     });
     $('#settingsContent').on('click', function(e){ // Filter subtabs change on click
-        if (e.target.parentNode.className == "filters-list"){
+        if (e.target.parentNode.className === "filters-list"){
             var filterSubmenu = $(e.target).attr('name');
             $('#filter_'+$('.filters-list .active').attr('name')).hide();
             $('.filters-list .active').removeClass('active');
             $('.filters-list > a[name='+filterSubmenu+']').addClass('active');
             $('#filter_'+filterSubmenu).show();
+        }
+    });
+    $('#settingsMenu .credits > a').on('click', function(e){ // Set up the import/export/reset links
+        if (e.target.title === "Import"){ // Import settings
+            $('#fileInput').trigger('click');
+        }else if (e.target.title === "Reset Settings"){
+            settings = jQuery.extend(true, {}, defaultSettings);
+            saveSettings(); // Save the settings
+            populateSettingsMenu(); // Double populate to display changed settings
+            populateSettingsMenu();
+        }
+    });
+    $('#fileInput').on('change',function(){ // When the undisplayed file input element changes import settings
+        if (typeof window.FileReader !== 'function') {
+            alert("The file API isn't supported on this browser.");
+            return;
+        }
+        var input = document.getElementById('fileInput');
+        var file = input.files[0];
+        if (!input.files[0]){
+            alert("Please select a file.");
+        }else{
+            var fr = new FileReader();
+            fr.onload = function(){
+                settings = JSON.parse(fr.result);
+                saveSettings(); // Save the settings
+                populateSettingsMenu(); // Double populate to display changed settings
+                populateSettingsMenu();
+                alert("Saved settings applied.");
+            }
+            fr.readAsText(file);
         }
     });
     $('#settingsContent').on('change', function(e){
@@ -2299,13 +2465,11 @@ $(document).ready(function(){
                 headerBar();
             }
         }
-        if(e.target.name === "Custom Favicons"){
+        if(e.target.name === "Custom Favicons" || (e.target.name === "Favicon" && e.target.checked)){
             generateFavicons();
         }
-        settingsStore = {};
-        settingsStore.UserSettings = settingsStrip(settings.UserSettings);
-        settingsStore.FilterSettings = settingsStrip(settings.FilterSettings);
-        localStorage.SpookyXsettings = JSON.stringify(settingsStore); // Save the settings
+        saveSettings(); // Save the settings
+        updateExportLink(); // Recreate the export link
     });
     if (settings.UserSettings.postCounter.suboptions.countUnloaded.value){
         if (/[0-9]+/.test(threadID)){ // Count the posts that aren't loaded (eg. in last/50 mode)
@@ -2326,7 +2490,7 @@ $(document).ready(function(){
         }
     }
     if (/[0-9]+/.test(threadID)){
-        windowFocus = true;
+        windowFocus = document.hasFocus();
         $(window).focus(function(){
             windowFocus = true;
             ThreadUpdate();
@@ -2349,59 +2513,126 @@ $(document).ready(function(){
         }
         if (/[0-9]+/.test(threadID)){
             postSubmitEvent();
-            $(document).ajaxComplete(function(event, request, ajaxSettings){
-                if (!(/inThread=true/).test(ajaxSettings.url)){
-                    if (request.responseText !== ""){
-                        response = JSON.parse(request.responseText);
-                    }else{
-                        response = {"error":"No responseText"};
-                    }
-                    if (ajaxSettings.type == "POST"){
-                        if (response.error === undefined){
-                            if (response.captcha){ // If you are required to fill a captcha before posting
-                                //console.log(response);
-                            }else{
-                                for (var postID in response[threadID].posts){
-                                    if(response[threadID].posts[postID].comment.replace(/[\r\n]/g,'') == lastSubmittedContent.replace(/[\r\n]/g,'')){
-                                        yourPosts[board][threadID].push(postID);
-                                        var newPost = $('#'+postID);
-                                        newPost.find('.post_author').after('<span> (You)</span>');
-                                        if (settings.UserSettings.filter.value){filter(newPost);} // Apply filter
-                                    }
-                                }
-                                crosslinkTracker = JSON.parse(localStorage.crosslinkTracker);
-                                crosslinkTracker[board] = true;
-                                localStorage.crosslinkTracker = JSON.stringify(crosslinkTracker);
-                                saveYourPosts();
+        }
+    }
 
-                                labelNewPosts(Object.keys(response[threadID].posts), false);
+    if (!(/(search|other|statistics)/).test(threadID)){
+        $(document).ajaxComplete(function(event, request, ajaxSettings){
+            if (!(/inThread=true/).test(ajaxSettings.url)){
+                if (request.responseText !== ""){
+                    response = JSON.parse(request.responseText);
+                }else{
+                    response = {"error":"No responseText"};
+                }
+                if (!/api\.imgur/.test(ajaxSettings.url)){ // Don't handle imgur calls
+                    if (/[0-9]+/.test(threadID)){
+                        if (ajaxSettings.type === "POST"){
+                            if (response.error === undefined){
+                                if (response.captcha){ // If you are required to fill a captcha before posting
+                                    //console.log(response);
+                                }else{
+                                    for (var postID in response[threadID].posts){
+                                        if(response[threadID].posts[postID].comment.replace(/[\r\n]/g,'') == lastSubmittedContent.replace(/[\r\n]/g,'')){
+                                            yourPosts[board][threadID].push(postID);
+                                            var newPost = $('#'+postID);
+                                            newPost.find('.post_author').after('<span> (You)</span>');
+                                            if (settings.UserSettings.filter.value){filter(newPost);} // Apply filter
+                                        }
+                                    }
+                                    crosslinkTracker = JSON.parse(localStorage.crosslinkTracker);
+                                    for (var boardVal in crosslinkTracker){
+                                        for (var threadVal in crosslinkTracker[boardVal]){
+                                            crosslinkTracker[boardVal][threadVal][board] = true;                                            
+                                        }
+                                    }
+                                    localStorage.crosslinkTracker = JSON.stringify(crosslinkTracker);
+                                    saveYourPosts();
+
+                                    labelNewPosts(Object.keys(response[threadID].posts), false);
+                                    addFileSelect(); // Refresh the added file upload
+                                }
+                            }else{
+                                if (settings.UserSettings.notifications.value){
+                                    notifyMe("An error occurred whilst posting", faviconNotification, response.error, false);
+                                }
                             }
+                            $('#middleReplySubmit').val('Submit').removeAttr('disabled'); // Reset submit button
                         }else{
-                            if (settings.UserSettings.notifications.value){
-                                notifyMe("An error occurred whilst posting", "http://i.imgur.com/HTcKk4Y.png", response.error, false);
+                            if (response.error !== undefined){
+                                //console.log(response.error);
+                            }else{
+                                if (response[threadID] !== undefined){
+                                    for (var postID in response[threadID].posts){
+                                        if (settings.UserSettings.filter.value){filter($('#'+postID));} // Apply filter
+                                    }
+                                    labelNewPosts(Object.keys(response[threadID].posts), false);
+                                    addFileSelect(); // Refresh the added file upload
+                                }else{
+                                    //console.log("Not in a thread");
+                                }
                             }
                         }
-                    }else{
-                        if (response.error !== undefined){
-                            //console.log(response.error);
-                        }else{
-                            if (response[threadID] !== undefined){
-                                for (var postID in response[threadID].posts){
-                                    if (settings.UserSettings.filter.value){filter($('#'+postID));} // Apply filter
+                    }
+
+                    for (var key in response){
+                        if (response[key] !== null && response[key].posts !== undefined){
+                            var isBoard = threadID === "board";
+                            if (isBoard && settings.UserSettings.labelYourPosts.value){ // Handle (You) deignation for expanding threads on board view
+                                labelNewPosts(Object.keys(response[key].posts), true);
+                            }
+                            for (var postID in response[key].posts){
+                                if (document.getElementById(postID) !== null){ // Don't process post if filter has purged it
+                                    var newPost = $('#'+postID);
+                                    if (settings.UserSettings.inlineImages.value){ // Inline images
+                                        newPost.find('img').each(function(i, image){
+                                            var $image = $(image);
+                                            $image.addClass('smallImage');
+                                            $image.removeAttr('width height');
+                                        });
+                                        if (settings.UserSettings.inlineImages.suboptions.delayedLoad.value){
+                                            delayedLoad(newPost);
+                                        }else{
+                                            inlineImages(newPost);
+                                        }
+                                    }
+                                    if (isBoard && settings.UserSettings.labelYourPosts.value){ // Handle (You) designation for expanding threads on board view
+                                        if (yourPostsLookup[board][postID]){
+                                            newPost.find('.post_author').after('<span> (You)</span>');
+                                        }
+                                    }
+                                    if (settings.UserSettings.inlineReplies.value){
+                                        newPost.addClass("base");
+                                    }
+                                    if (settings.UserSettings.embedImages.value){embedImages(newPost);} // Embed images
+                                    if (settings.UserSettings.inlineImages.value && !settings.UserSettings.inlineImages.suboptions.autoplayGifs.value){pauseGifs(newPost.find('img'));} // Stop gifs autoplaying
+                                    if (settings.UserSettings.relativeTimestamps.value){relativeTimestamps(newPost);} // Add relative timestamps
+                                    if (isBoard && settings.UserSettings.filter.value){filter(newPost);} // Apply filter
+                                    if (settings.UserSettings.postQuote.value){
+                                        newPost.find('.post_data > [data-function=quote]').removeAttr('data-function').addClass('postQuote'); // Change the quote function
+                                    }
+                                    if (settings.UserSettings.hidePosts.value){
+                                        newPost.children('.pull-left').removeClass('stub'); // Show hide post buttons
+                                        if (settings.UserSettings.hidePosts.suboptions.recursiveHiding.value){
+                                            newPost.find('.post_backlink').attr('id','p_b'+newPost[0].id);
+                                        }
+                                    }
+                                    if (settings.UserSettings.postCounter.value){postCounter();} // Update post counter
+                                    if (settings.UserSettings.removeJfont.value){newPost.find('.text').removeClass('shift-jis');} // Remove japanese font formatting
+                                    if (settings.UserSettings.labelDeletions.value){newPost.find('.icon-trash').html(' [Deleted]');} // Label deletions                            
+                                    addHover(newPost);
                                 }
-                                labelNewPosts(Object.keys(response[threadID].posts), false);
-                            }else{
-                                //console.log("Not in a thread");
                             }
                         }
                     }
                 }
-            });
-        }
+            }
+        });
     }
+
     var staticPosts = $('article.post');
     var onlyOP = $('article.thread:not(.backlink_container)');
     var staticPostsAndOP = staticPosts.add(onlyOP); // Save querying the staticPosts twice by extending the first query with the OP
+    addFileSelect(); // Intialise ghosting image posting
     if (settings.UserSettings.headerBar.value){headerBar();} // Customise headerbar behaviour
     mascot(parseMascotImageValue()); // Insert mascot
     if (settings.UserSettings.adjustReplybox.value){adjustReplybox();} // Adjust reply box
@@ -2491,77 +2722,7 @@ $(document).ready(function(){
     if (settings.UserSettings.filter.value){filter(staticPostsAndOP);} // Filter posts
     if (settings.UserSettings.labelDeletions.value){$('.icon-trash').html(' [Deleted]');} // Label deletions
     if (threadID !== "statistics"){
-        imageHover();
-        canvasHover();
-        videoHover();
-    }
-
-    if (!(/(search|other|statistics)/).test(threadID)){
-        $(document).ajaxComplete(function(event, request, ajaxSettings){ // Parse all GET and POST delivered posts and apply SpookyX features to them
-            if (!(/inThread=true/).test(ajaxSettings.url)){
-                if (request.responseText !== ""){
-                    response = JSON.parse(request.responseText);
-                }else{
-                    response = {"error":"No responseText"};
-                }
-                if (response.error !== undefined){
-                    //console.log(response.error);
-                }else{
-                    for (var key in response){
-                        if (response[key] !== null && response[key].posts !== undefined){
-                            var isBoard = threadID === "board";
-                            if (isBoard && settings.UserSettings.labelYourPosts.value){ // Handle (You) deignation for expanding threads on board view
-                                labelNewPosts(Object.keys(response[key].posts), true);
-                            }
-                            for (var postID in response[key].posts){
-                                if (document.getElementById(postID) !== null){ // Don't process post if filter has purged it
-                                    var newPost = $('#'+postID);
-                                    if (settings.UserSettings.inlineImages.value){ // Inline images
-                                        newPost.find('img').each(function(i, image){
-                                            var $image = $(image);
-                                            $image.addClass('smallImage');
-                                            $image.removeAttr('width height');
-                                        });
-                                        if (settings.UserSettings.inlineImages.suboptions.delayedLoad.value){
-                                            delayedLoad(newPost);
-                                        }else{
-                                            inlineImages(newPost);
-                                        }
-                                    }
-                                    if (isBoard && settings.UserSettings.labelYourPosts.value){ // Handle (You) designation for expanding threads on board view
-                                        if (yourPostsLookup[board][postID]){
-                                            newPost.find('.post_author').after('<span> (You)</span>');
-                                        }
-                                    }
-                                    if (settings.UserSettings.inlineReplies.value){
-                                        newPost.addClass("base");
-                                    }
-                                    if (settings.UserSettings.embedImages.value){embedImages(newPost);} // Embed images
-                                    if (settings.UserSettings.inlineImages.value && !settings.UserSettings.inlineImages.suboptions.autoplayGifs.value){pauseGifs(newPost.find('img'));} // Stop gifs autoplaying
-                                    if (settings.UserSettings.relativeTimestamps.value){relativeTimestamps(newPost);} // Add relative timestamps
-                                    if (isBoard && settings.UserSettings.filter.value){filter(newPost);} // Apply filter
-                                    if (settings.UserSettings.postQuote.value){
-                                        newPost.find('.post_data > [data-function=quote]').removeAttr('data-function').addClass('postQuote'); // Change the quote function
-                                    }
-                                    if (settings.UserSettings.hidePosts.value){
-                                        newPost.children('.pull-left').removeClass('stub'); // Show hide post buttons
-                                        if (settings.UserSettings.hidePosts.suboptions.recursiveHiding.value){
-                                            newPost.find('.post_backlink').attr('id','p_b'+newPost[0].id);
-                                        }
-                                    }
-                                    if (settings.UserSettings.postCounter.value){postCounter();} // Update post counter
-                                    if (settings.UserSettings.removeJfont.value){newPost.find('.text').removeClass('shift-jis');} // Remove japanese font formatting
-                                    if (settings.UserSettings.labelDeletions.value){newPost.find('.icon-trash').html(' [Deleted]');} // Label deletions
-                                }
-                            }
-                            imageHover();
-                            canvasHover();
-                            videoHover();
-                        }
-                    }
-                }
-            }
-        });
+        addHover(staticPostsAndOP);
     }
 
     $('#main').on('click', function(e){ // Detect clicks on page content
@@ -2588,9 +2749,7 @@ $(document).ready(function(){
                         });
                         $("#i"+postID+" .post_wrapper").addClass("post_wrapperInline");
                         if (settings.UserSettings.inlineImages.value){inlineImages($('#r'+postID));} // Inline images
-                        imageHover();
-                        canvasHover();
-                        videoHover();
+                        addHover($('#i'+postID));
                     }
                 }else{
                     if ($(e.target).hasClass("inlined")){
@@ -2610,9 +2769,7 @@ $(document).ready(function(){
                         });
                         $("#i"+postID+" .post_wrapper").addClass("post_wrapperInline");
                         if (settings.UserSettings.inlineImages.value){inlineImages($('#r'+postID));} // Inline images
-                        imageHover();
-                        canvasHover();
-                        videoHover();
+                        addHover($('#i'+postID));
                     }
                 }
             }
@@ -2812,7 +2969,6 @@ function populateSettingsMenu(){
         if (localStorage.SpookyXsettings !== undefined){
             $.extend(true, settings, JSON.parse(localStorage.SpookyXsettings));
         }
-        generateFavicons();
         var settingsHTML = '<div id="Main">'+generateSubOptionHTML(settings.UserSettings, '')+'</div>';
         settingsHTML += '<div id="Filter">'+generateFilterHTML()+'</div>';
         $('#settingsContent').html(settingsHTML);
@@ -2839,6 +2995,7 @@ function populateSettingsMenu(){
                 }                
             }
         });
+        updateExportLink(); // Create the export link
     }
 }
 
